@@ -18,5 +18,5 @@
 
 ### Minispiele & Web-Tools
 7. **[Browser-Minispiele: Snake, Brick-Breaker & Reaktionstest](https://github.com/KIAkademie/retro-arcade-minigames)** ([Live spielen](https://kiakademie.github.io/retro-arcade-minigames/))
-8. **[Tresor-Code-Knacker & Karten-Memory](https://github.com/KIAkademie/memory-code-game)** ([Live spielen](https://kiakademie.github.io/memory-code-game/))
+8. **[Tresor-Code-Knacker & Karten-Memory](https://github.com/KIAkademie/joel-romeira-portfolio/tree/main/demos/memory-code-game)** ([Live spielen](https://kiakademie.github.io/joel-romeira-portfolio/demos/memory-code-game/index.html))
 9. **[Public-API Tester & Notiz-Speicher](https://github.com/KIAkademie/public-api-notes)** ([Live öffnen](https://kiakademie.github.io/public-api-notes/))
