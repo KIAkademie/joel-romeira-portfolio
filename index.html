@@ -3,8 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Joel Neto Romeira – Über mich, Projekte &amp; Lebenslauf</title>
+  <title>Joel Neto Romeira – Über mich, Projekte, Minispiele &amp; Lebenslauf</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .cat-tag {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--brand);
+      background: #e2e8f0;
+      padding: 0.15rem 0.55rem;
+      border-radius: 4px;
+      margin-bottom: 0.45rem;
+    }
+    .play-frame-box {
+      margin-top: 1.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .play-frame-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 1rem;
+      background: #f1f5f9;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .play-iframe {
+      width: 100%;
+      height: 590px;
+      border: none;
+      background: #f8fafc;
+    }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -12,7 +53,8 @@
       <a href="#" class="site-title">Joel Neto Romeira</a>
       <nav class="nav-links">
         <a href="#ueber-mich">Über mich</a>
-        <a href="#projekte">Projekte</a>
+        <a href="#projekte">Projekte &amp; Minispiele (9)</a>
+        <a href="#direkt-spielen">Direkt spielen</a>
         <a href="#lebenslauf">Lebenslauf</a>
         <a href="#unterlagen">Unterlagen &amp; Kontakt</a>
         <a href="https://github.com/KIAkademie" target="_blank" rel="noopener">GitHub</a>
@@ -26,13 +68,13 @@
         <h1>Joel Neto Romeira</h1>
         <div class="intro-subtitle">Ausbildungsplatzsuche im IT-Bereich (Fachinformatiker) • 33428 Harsewinkel</div>
         <p>
-          Hallo, ich bin Joel aus Harsewinkel. Mein Interesse an Computern und dem Programmieren hat schon als Kind mit Minecraft angefangen, als ich meinen eigenen Minecraft-Server aufgesetzt, verwaltet und angepasst habe. Später habe ich eigene Mods und Skripte für GTA 5 geschrieben.
+          Hallo, ich bin Joel aus Harsewinkel. Mein Interesse an Computern und dem Programmieren hat schon als Kind mit Minecraft angefangen, als ich meinen eigenen Minecraft-Server aufgesetzt, verwaltet und angepasst habe. Später habe ich eigene Mods, NUI-Overlays und Skripte für GTA 5 (FiveM) geschrieben.
         </p>
         <p>
-          Heute verbringe ich meine Freizeit am liebsten am PC: Ich erstelle Websites und kleinere Apps, arbeite mit Datenbanken, nutze Open-Source-Projekte sowie öffentliche APIs und verwalte meinen Code auf GitHub. Beim Entwickeln arbeite ich täglich mit KI-Tools wie Claude Code und Gemini in Antigravity.
+          Heute verbringe ich meine Freizeit am liebsten am PC: Ich erstelle Websites, kleine Browser-Minispiele und Tools, arbeite mit Datenbanken, nutze Open-Source-Projekte sowie öffentliche APIs und verwalte meinen Code auf GitHub. Beim Entwickeln arbeite ich täglich mit KI-Tools wie Claude Code und Gemini in Antigravity.
         </p>
         <div class="intro-actions">
-          <a href="#projekte" class="btn btn-primary">Zu meinen Projekten</a>
+          <a href="#projekte" class="btn btn-primary">Alle 9 Projekte &amp; Minispiele ansehen</a>
           <a href="assets/Lebenslauf_Joel_Neto_Romeira.pdf" target="_blank" class="btn">Lebenslauf (PDF)</a>
           <a href="assets/Abschlusszeugnis_Joel_Neto_Romeira.pdf" target="_blank" class="btn">Abschlusszeugnis (PDF)</a>
           <a href="https://github.com/KIAkademie" target="_blank" rel="noopener" class="btn">GitHub-Profil</a>
@@ -46,55 +88,190 @@
   </section>
 
   <main class="container">
-    <!-- Projekte -->
+    <!-- Projekte & Minispiele -->
     <section id="projekte">
-      <h2 class="section-heading">Eigene Freizeit-Projekte (GitHub)</h2>
-      <p style="margin-bottom:1.15rem;color:var(--muted);font-size:0.95rem;">
-        Hier sind drei kleinere Projekte aus meinen Themenbereichen (GTA-5-Scripting, Minecraft-Server und öffentliche APIs). Alle Projekte sind öffentlich auf meinem GitHub-Profil einsehbar und können direkt im Browser geöffnet werden:
+      <h2 class="section-heading">Meine Projekte &amp; Minispiele auf GitHub (9 Projekte)</h2>
+      <p style="margin-bottom:1rem;color:var(--muted);font-size:0.95rem;">
+        Alle Projekte sind öffentlich auf meinem GitHub-Profil verfügbar. Du kannst sie nach Thema filtern und entweder direkt hier unten auf der Seite spielen/testen oder in einem neuen Tab öffnen:
       </p>
 
-      <div class="project-list">
-        <article class="project-card">
+      <div class="filter-bar">
+        <button class="btn btn-primary" id="flt-all" onclick="filterProjects('all')">Alle (9)</button>
+        <button class="btn" id="flt-gta" onclick="filterProjects('gta')">GTA 5 / FiveM (3)</button>
+        <button class="btn" id="flt-mc" onclick="filterProjects('mc')">Minecraft (3)</button>
+        <button class="btn" id="flt-game" onclick="filterProjects('game')">Minispiele &amp; Web-Tools (3)</button>
+      </div>
+
+      <div class="project-list" id="projectGrid">
+        <!-- 1. GTA 5 Lockpick Minigame -->
+        <article class="project-card" data-cat="gta game">
           <div>
+            <span class="cat-tag">GTA 5 / FiveM • Minispiel</span>
+            <h3>FiveM Lockpick Timing-Minispiel (NUI + Lua)</h3>
+            <p>
+              Ein spielbares NUI-Minispiel zum Knacken von 4 Schloss-Stiften per Leertaste im richtigen Timing – inklusive Lua-Client-Skript (<code>client.lua</code>).
+            </p>
+            <div class="project-meta">Technik: Lua, HTML5/JS, FiveM NUI Callback</div>
+          </div>
+          <div class="project-links">
+            <button class="btn btn-primary" onclick="loadInPage('demos/fivem-lockpick-minigame/index.html', 'FiveM Lockpick Timing-Minispiel')">Auf Seite spielen</button>
+            <a href="demos/fivem-lockpick-minigame/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/fivem-lockpick-minigame" target="_blank" rel="noopener" class="btn">GitHub</a>
+          </div>
+        </article>
+
+        <!-- 2. Retro Arcade Minigames -->
+        <article class="project-card" data-cat="game">
+          <div>
+            <span class="cat-tag">Minispiele</span>
+            <h3>Browser-Minispiele: Snake, Brick-Breaker &amp; Reaktionstest</h3>
+            <p>
+              Drei direkt im Browser spielbare Klassiker mit Highscore-Speicherung (<code>localStorage</code>) und Reaktionszeit-Messung in Millisekunden.
+            </p>
+            <div class="project-meta">Technik: JavaScript, HTML5 Canvas, LocalStorage</div>
+          </div>
+          <div class="project-links">
+            <button class="btn btn-primary" onclick="loadInPage('demos/retro-arcade-minigames/index.html', 'Snake, Brick-Breaker & Reaktionstest')">Auf Seite spielen</button>
+            <a href="demos/retro-arcade-minigames/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/retro-arcade-minigames" target="_blank" rel="noopener" class="btn">GitHub</a>
+          </div>
+        </article>
+
+        <!-- 3. Memory & Code-Knacker -->
+        <article class="project-card" data-cat="game">
+          <div>
+            <span class="cat-tag">Minispiele</span>
+            <h3>Tresor-Code-Knacker &amp; IT-Karten-Memory</h3>
+            <p>
+              Zwei ruhige Denkspiele: Ein 4-stelliger PIN-Code-Knacker mit Treffer-Hinweisen sowie ein 4×4 Karten-Memory mit Zugzähler.
+            </p>
+            <div class="project-meta">Technik: JavaScript Logik, CSS Grid</div>
+          </div>
+          <div class="project-links">
+            <button class="btn btn-primary" onclick="loadInPage('demos/memory-code-game/index.html', 'Tresor-Code-Knacker & Karten-Memory')">Auf Seite spielen</button>
+            <a href="demos/memory-code-game/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/memory-code-game" target="_blank" rel="noopener" class="btn">GitHub</a>
+          </div>
+        </article>
+
+        <!-- 4. GTA 5 HUD & SQL Garage -->
+        <article class="project-card" data-cat="gta">
+          <div>
+            <span class="cat-tag">GTA 5 / FiveM</span>
             <h3>GTA 5 / FiveM – Fahrzeug-HUD &amp; SQL-Garage</h3>
             <p>
-              Ein Lua-Client-Skript zur Abfrage von Fahrzeugdaten (Geschwindigkeit, Tankfüllung, Motorzustand) mit passender SQL-Datenbanktabelle zum Speichern der Fahrzeuge in einer Garage.
+              Lua-Skript zur Abfrage von Fahrzeugdaten (Tempo, Tank, Motorzustand) mit passender SQL-Datenbanktabelle (<code>player_vehicles</code>) zum Einparken.
             </p>
-            <div class="project-meta">Technik: Lua, SQL (MySQL), HTML/CSS/JS</div>
+            <div class="project-meta">Technik: Lua, SQL (MySQL), NUI Overlay</div>
           </div>
           <div class="project-links">
-            <a href="demos/gta5-fivem-server-toolkit/index.html" target="_blank" class="btn btn-primary">Vorschau öffnen</a>
-            <a href="https://github.com/KIAkademie/gta5-fivem-server-toolkit" target="_blank" rel="noopener" class="btn">GitHub Code</a>
+            <button class="btn btn-primary" onclick="loadInPage('demos/gta5-fivem-server-toolkit/index.html', 'GTA 5 Fahrzeug-HUD & SQL-Garage')">Vorschau laden</button>
+            <a href="demos/gta5-fivem-server-toolkit/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/gta5-fivem-server-toolkit" target="_blank" rel="noopener" class="btn">GitHub</a>
           </div>
         </article>
 
-        <article class="project-card">
+        <!-- 5. GTA 5 Dispatch System -->
+        <article class="project-card" data-cat="gta">
           <div>
-            <h3>Minecraft Server-Status &amp; Config-Generator</h3>
+            <span class="cat-tag">GTA 5 / FiveM</span>
+            <h3>GTA 5 / FiveM – Dispatch- &amp; Auftrags-System</h3>
             <p>
-              Ein praktisches Web-Tool zum Zusammenstellen und Herunterladen einer <code>server.properties</code>-Konfigurationsdatei sowie zur Online-Prüfung eines Minecraft-Servers über eine öffentliche API.
+              Auftrags- und Leitstellen-Übersicht für Server-Fraktionen (Mechaniker, Taxi, Abschleppdienst) mit automatischer GPS-Wegpunkt-Übergabe im Spiel.
             </p>
-            <div class="project-meta">Technik: JavaScript, REST-API, Server-Konfiguration</div>
+            <div class="project-meta">Technik: Lua (SetNewWaypoint), JavaScript</div>
           </div>
           <div class="project-links">
-            <a href="demos/minecraft-server-config/index.html" target="_blank" class="btn btn-primary">Vorschau öffnen</a>
-            <a href="https://github.com/KIAkademie/minecraft-server-config" target="_blank" rel="noopener" class="btn">GitHub Code</a>
+            <button class="btn btn-primary" onclick="loadInPage('demos/fivem-job-dispatch-system/index.html', 'GTA 5 Dispatch- & Auftrags-System')">Vorschau laden</button>
+            <a href="demos/fivem-job-dispatch-system/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/fivem-job-dispatch-system" target="_blank" rel="noopener" class="btn">GitHub</a>
           </div>
         </article>
 
-        <article class="project-card">
+        <!-- 6. Minecraft Redstone & Crafting Sim -->
+        <article class="project-card" data-cat="mc">
           <div>
+            <span class="cat-tag">Minecraft</span>
+            <h3>Minecraft Redstone-Simulator &amp; Crafting-Rechner</h3>
+            <p>
+              Interaktives 2D-Raster zum Bauen und Schalten kleiner Redstone-Schaltkreise (Hebel, Leitungen, Lampen) sowie Rohstoff-Rechner für Crafting-Rezepte.
+            </p>
+            <div class="project-meta">Technik: JavaScript BFS-Signal-Logik, HTML/CSS</div>
+          </div>
+          <div class="project-links">
+            <button class="btn btn-primary" onclick="loadInPage('demos/minecraft-crafting-redstone-sim/index.html', 'Minecraft Redstone-Simulator & Crafting-Rechner')">Auf Seite testen</button>
+            <a href="demos/minecraft-crafting-redstone-sim/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/minecraft-crafting-redstone-sim" target="_blank" rel="noopener" class="btn">GitHub</a>
+          </div>
+        </article>
+
+        <!-- 7. Minecraft Spigot GUI Builder -->
+        <article class="project-card" data-cat="mc">
+          <div>
+            <span class="cat-tag">Minecraft</span>
+            <h3>Minecraft Spigot/Paper – Chest-GUI &amp; Plugin-Generator</h3>
+            <p>
+              Visueller 27-Slot-Editor für eigene Minecraft-Server-Menüs: Items und Befehle auf Slots legen und fertigen Java-Plugin-Code (<code>InventoryClickEvent</code>) erzeugen.
+            </p>
+            <div class="project-meta">Technik: Java (Spigot API), JavaScript</div>
+          </div>
+          <div class="project-links">
+            <button class="btn btn-primary" onclick="loadInPage('demos/minecraft-plugin-gui-builder/index.html', 'Minecraft Spigot Chest-GUI Generator')">Auf Seite testen</button>
+            <a href="demos/minecraft-plugin-gui-builder/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/minecraft-plugin-gui-builder" target="_blank" rel="noopener" class="btn">GitHub</a>
+          </div>
+        </article>
+
+        <!-- 8. Minecraft Server Config & Status -->
+        <article class="project-card" data-cat="mc">
+          <div>
+            <span class="cat-tag">Minecraft</span>
+            <h3>Minecraft Server-Status &amp; <code>server.properties</code> Generator</h3>
+            <p>
+              Konfigurations-Editor zum Erstellen einer <code>server.properties</code>-Datei kombiniert mit einer Live-Status-Abfrage über die öffentliche Minecraft-API.
+            </p>
+            <div class="project-meta">Technik: REST-API (mcsrvstat.us), JavaScript</div>
+          </div>
+          <div class="project-links">
+            <button class="btn btn-primary" onclick="loadInPage('demos/minecraft-server-config/index.html', 'Minecraft Server-Status & Config-Generator')">Auf Seite testen</button>
+            <a href="demos/minecraft-server-config/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/minecraft-server-config" target="_blank" rel="noopener" class="btn">GitHub</a>
+          </div>
+        </article>
+
+        <!-- 9. Public API Tester & Notes -->
+        <article class="project-card" data-cat="game">
+          <div>
+            <span class="cat-tag">Web &amp; APIs</span>
             <h3>Public-API Tester &amp; Notiz-Speicher</h3>
             <p>
-              Eine schlichte Anwendung, um öffentliche JSON-Schnittstellen (GET-Abfragen) direkt im Browser zu testen, Antworten formatiert anzusehen und eigene API-Notizen lokal zu speichern.
+              Werkzeug zum direkten Abfragen öffentlicher JSON-Schnittstellen (GET-Requests) und zum lokalen Speichern eigener API-Notizen im Browser.
             </p>
-            <div class="project-meta">Technik: JavaScript (Fetch API), JSON, LocalStorage</div>
+            <div class="project-meta">Technik: Fetch API, JSON, LocalStorage</div>
           </div>
           <div class="project-links">
-            <a href="demos/public-api-notes/index.html" target="_blank" class="btn btn-primary">Vorschau öffnen</a>
-            <a href="https://github.com/KIAkademie/public-api-notes" target="_blank" rel="noopener" class="btn">GitHub Code</a>
+            <button class="btn btn-primary" onclick="loadInPage('demos/public-api-notes/index.html', 'Public-API Tester & Notiz-Speicher')">Auf Seite testen</button>
+            <a href="demos/public-api-notes/index.html" target="_blank" class="btn">Neuer Tab</a>
+            <a href="https://github.com/KIAkademie/public-api-notes" target="_blank" rel="noopener" class="btn">GitHub</a>
           </div>
         </article>
+      </div>
+
+      <!-- Eingebettetes Spielfenster direkt auf der Seite -->
+      <div id="direkt-spielen" class="play-frame-box">
+        <div class="play-frame-header">
+          <div>
+            <strong style="color:var(--brand);">Direkt auf der Seite ausprobieren:</strong>
+            <span id="activeDemoTitle" style="margin-left:0.4rem;">Browser-Minispiele (Snake, Brick-Breaker &amp; Reaktionstest)</span>
+          </div>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+            <button class="btn" onclick="loadInPage('demos/retro-arcade-minigames/index.html', 'Snake, Brick-Breaker & Reaktionstest')">Snake / Arcade</button>
+            <button class="btn" onclick="loadInPage('demos/fivem-lockpick-minigame/index.html', 'FiveM Lockpick Minigame')">Lockpick</button>
+            <button class="btn" onclick="loadInPage('demos/memory-code-game/index.html', 'Tresor-Code & Memory')">Code / Memory</button>
+            <button class="btn" onclick="loadInPage('demos/minecraft-crafting-redstone-sim/index.html', 'Redstone-Simulator')">Redstone</button>
+          </div>
+        </div>
+        <iframe id="playIframe" class="play-iframe" src="demos/retro-arcade-minigames/index.html" title="Projekt- und Minispiel-Vorschau"></iframe>
       </div>
     </section>
 
@@ -238,5 +415,23 @@
       Joel Neto Romeira • Münsterstraße 6, 33428 Harsewinkel • Tel.: 0169 768 7771 • E-Mail: j.romeira@icloud.com
     </div>
   </footer>
+
+  <script>
+    window.filterProjects = function(cat) {
+      ['all', 'gta', 'mc', 'game'].forEach(k => {
+        document.getElementById('flt-' + k).className = k === cat ? 'btn btn-primary' : 'btn';
+      });
+      document.querySelectorAll('#projectGrid .project-card').forEach(card => {
+        const cats = card.getAttribute('data-cat') || '';
+        card.style.display = (cat === 'all' || cats.includes(cat)) ? 'flex' : 'none';
+      });
+    };
+
+    window.loadInPage = function(url, title) {
+      document.getElementById('playIframe').src = url;
+      document.getElementById('activeDemoTitle').textContent = title;
+      document.getElementById('direkt-spielen').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+  </script>
 </body>
 </html>

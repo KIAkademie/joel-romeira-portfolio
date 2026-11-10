@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minecraft Redstone-Simulator & Crafting-Rechner – Joel Neto Romeira</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #dce3ec;
+      --text: #1e293b;
+      --muted: #64748b;
+      --brand: #1F3864;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Calibri, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--brand);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    h1 { font-size: 1.35rem; color: var(--brand); }
+    .btn {
+      padding: 0.42rem 0.85rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.2rem;
+    }
+    .card h2 { font-size: 1.05rem; color: var(--brand); margin-bottom: 0.35rem; }
+    .desc { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.9rem; }
+
+    .toolbar {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.85rem;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      background: #cbd5e1;
+      padding: 6px;
+      border-radius: 6px;
+      user-select: none;
+    }
+    .cell {
+      aspect-ratio: 1;
+      background: #f8fafc;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    .cell.wire { background: #fee2e2; color: #991b1b; }
+    .cell.wire.powered { background: #ef4444; color: #fff; }
+    .cell.lever { background: #e2e8f0; color: #1e293b; border-color: #64748b; }
+    .cell.lever.powered { background: #dc2626; color: #fff; border-color: #991b1b; }
+    .cell.lamp { background: #fef3c7; color: #92400e; }
+    .cell.lamp.powered { background: #facc15; color: #713f12; box-shadow: inset 0 0 10px #f59e0b; }
+
+    .craft-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    select, input {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 0.7rem;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Minecraft Redstone-Simulator &amp; Crafting-Rechner</h1>
+        <div style="font-size:0.88rem;color:var(--muted);">2D-Schaltkreis-Simulation und Rohstoff-Kalkulator</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="https://kiakademie.github.io/joel-romeira-portfolio/" class="btn">Zurück zur Übersicht</a>
+        <a href="https://github.com/KIAkademie/minecraft-crafting-redstone-sim" target="_blank" rel="noopener" class="btn btn-primary">Quellcode auf GitHub</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Interaktives Redstone-Raster (8×6)</h2>
+        <p class="desc">Wähle ein Bauteil aus und klicke auf die Felder. Wenn du auf einen gesetzten <strong>Hebel</strong> klickst, schaltest du den Strom an oder aus.</p>
+
+        <div class="toolbar">
+          <button class="btn btn-primary" id="tool-lever" onclick="setTool('lever')">Hebel (Stromquelle)</button>
+          <button class="btn" id="tool-wire" onclick="setTool('wire')">Redstone-Leitung</button>
+          <button class="btn" id="tool-lamp" onclick="setTool('lamp')">Redstone-Lampe</button>
+          <button class="btn" id="tool-empty" onclick="setTool('empty')">Radierer</button>
+          <button class="btn" onclick="loadDemoCircuit()">Beispiel-Schaltung</button>
+        </div>
+
+        <div class="board" id="board"></div>
+      </section>
+
+      <section class="card">
+        <h2>Crafting Rohstoff-Rechner</h2>
+        <p class="desc">Berechnet den exakten Grundmaterial-Bedarf für größere Bauprojekte:</p>
+
+        <label style="font-size:0.84rem;color:var(--muted);">Gegenstand wählen:</label>
+        <select id="craftItem">
+          <option value="piston">Kolben (Piston)</option>
+          <option value="repeater">Redstone-Verstärker (Repeater)</option>
+          <option value="hopper">Trichter (Hopper)</option>
+          <option value="PoweredRail">Antriebsschiene (6er Pack)</option>
+        </select>
+
+        <label style="font-size:0.84rem;color:var(--muted);">Gewünschte Anzahl:</label>
+        <input type="number" id="craftQty" value="16" min="1" max="999" />
+
+        <div id="craftResult"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const W = 8, H = 6;
+    let currentTool = 'lever';
+    const grid = Array.from({ length: H }, () => Array.from({ length: W }, () => ({ type: 'empty', on: false, powered: false })));
+
+    window.setTool = function(t) {
+      currentTool = t;
+      ['lever', 'wire', 'lamp', 'empty'].forEach(k => {
+        document.getElementById('tool-' + k).className = k === t ? 'btn btn-primary' : 'btn';
+      });
+    };
+
+    function updatePower() {
+      for (let r = 0; r < H; r++) {
+        for (let c = 0; c < W; c++) {
+          grid[r][c].powered = (grid[r][c].type === 'lever' && grid[r][c].on);
+        }
+      }
+      // BFS propagation across wires and lamps
+      const queue = [];
+      for (let r = 0; r < H; r++) {
+        for (let c = 0; c < W; c++) {
+          if (grid[r][c].powered) queue.push([r, c]);
+        }
+      }
+      const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+      while (queue.length > 0) {
+        const [r, c] = queue.shift();
+        for (const [dr, dc] of dirs) {
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < H && nc >= 0 && nc < W) {
+            const cell = grid[nr][nc];
+            if ((cell.type === 'wire' || cell.type === 'lamp') && !cell.powered) {
+              cell.powered = true;
+              if (cell.type === 'wire') queue.push([nr, nc]);
+            }
+          }
+        }
+      }
+    }
+
+    function renderBoard() {
+      updatePower();
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      for (let r = 0; r < H; r++) {
+        for (let c = 0; c < W; c++) {
+          const cell = grid[r][c];
+          const el = document.createElement('div');
+          el.className = 'cell ' + cell.type + (cell.powered ? ' powered' : '');
+          if (cell.type === 'lever') el.textContent = cell.on ? 'HEBEL AN' : 'HEBEL AUS';
+          else if (cell.type === 'wire') el.textContent = 'LEITUNG';
+          else if (cell.type === 'lamp') el.textContent = cell.powered ? 'LAMPE AN' : 'LAMPE';
+          el.onclick = () => {
+            if (cell.type === 'lever' && currentTool === 'lever') {
+              cell.on = !cell.on;
+            } else {
+              cell.type = currentTool;
+              cell.on = currentTool === 'lever';
+            }
+            renderBoard();
+          };
+          board.appendChild(el);
+        }
+      }
+    }
+
+    window.loadDemoCircuit = function() {
+      for (let r = 0; r < H; r++) {
+        for (let c = 0; c < W; c++) {
+          grid[r][c] = { type: 'empty', on: false, powered: false };
+        }
+      }
+      grid[2][1] = { type: 'lever', on: true, powered: true };
+      grid[2][2] = { type: 'wire', on: false, powered: false };
+      grid[2][3] = { type: 'wire', on: false, powered: false };
+      grid[2][4] = { type: 'wire', on: false, powered: false };
+      grid[1][4] = { type: 'lamp', on: false, powered: false };
+      grid[3][4] = { type: 'lamp', on: false, powered: false };
+      grid[2][5] = { type: 'lamp', on: false, powered: false };
+      renderBoard();
+    };
+
+    const recipes = {
+      piston: { 'Holzbretter': 3, 'Bruchstein (Cobblestone)': 4, 'Eisenbarren': 1, 'Redstone-Staub': 1 },
+      repeater: { 'glatter Stein': 3, 'Redstone-Fackeln': 2, 'Redstone-Staub': 1 },
+      hopper: { 'Eisenbarren': 5, 'Holztruhe (8 Bretter)': 1 },
+      PoweredRail: { 'Goldbarren': 6, 'Stock': 1, 'Redstone-Staub': 1 }
+    };
+
+    function calcCrafting() {
+      const item = document.getElementById('craftItem').value;
+      const qty = Math.max(1, parseInt(document.getElementById('craftQty').value || '1', 10));
+      const rec = recipes[item];
+      document.getElementById('craftResult').innerHTML = Object.entries(rec).map(([name, count]) => {
+        const total = count * qty;
+        const stacks = Math.floor(total / 64);
+        const rem = total % 64;
+        const stackInfo = stacks > 0 ? ` (${stacks} Stack + ${rem})` : '';
+        return `<div class="craft-row"><span>${name}</span><strong>${total}×${stackInfo}</strong></div>`;
+      }).join('');
+    }
+
+    document.getElementById('craftItem').onchange = calcCrafting;
+    document.getElementById('craftQty').oninput = calcCrafting;
+
+    loadDemoCircuit();
+    calcCrafting();
+  </script>
+</body>
+</html>

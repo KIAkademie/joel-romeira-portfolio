@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minecraft Spigot Chest-GUI & Plugin-Generator – Joel Neto Romeira</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #dce3ec;
+      --text: #1e293b;
+      --muted: #64748b;
+      --brand: #1F3864;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Calibri, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem;
+      line-height: 1.5;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--brand);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    h1 { font-size: 1.35rem; color: var(--brand); }
+    .btn {
+      padding: 0.42rem 0.85rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.2rem;
+    }
+    .card h2 { font-size: 1.05rem; color: var(--brand); margin-bottom: 0.35rem; }
+    .desc { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.9rem; }
+    .chest-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 4px;
+      background: #94a3b8;
+      padding: 6px;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+    .slot {
+      aspect-ratio: 1;
+      background: #e2e8f0;
+      border: 2px solid #cbd5e1;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      padding: 2px;
+    }
+    .slot.selected { border-color: var(--brand); background: #dbeafe; }
+    .slot.filled { background: #fef08a; color: #854d0e; }
+    input, select {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 0.65rem;
+      font-family: inherit;
+    }
+    pre {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.8rem;
+      font-family: Consolas, monospace;
+      font-size: 0.77rem;
+      max-height: 360px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Minecraft Spigot/Paper – Chest-GUI &amp; Plugin-Generator</h1>
+        <div style="font-size:0.88rem;color:var(--muted);">9×3 Inventar-Menü zusammenstellen &amp; Java-Code erzeugen</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="https://kiakademie.github.io/joel-romeira-portfolio/" class="btn">Zurück zur Übersicht</a>
+        <a href="https://github.com/KIAkademie/minecraft-plugin-gui-builder" target="_blank" rel="noopener" class="btn btn-primary">Quellcode auf GitHub</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>1. Truhen-Slot auswählen (27 Slots)</h2>
+        <p class="desc">Klicke auf einen Slot (0–26), um ihm ein Item und einen Server-Befehl zuzuweisen:</p>
+
+        <div class="chest-grid" id="chestGrid"></div>
+
+        <label style="font-size:0.84rem;color:var(--muted);">Ausgewählter Slot: <strong id="lblSlot">11</strong></label>
+        <select id="selMaterial">
+          <option value="DIAMOND_SWORD">DIAMOND_SWORD (PvP-Arena)</option>
+          <option value="ENDER_PEARL">ENDER_PEARL (Spawn-Teleport)</option>
+          <option value="GRASS_BLOCK">GRASS_BLOCK (Citybuild-Welt)</option>
+          <option value="REDSTONE">REDSTONE (Server-Einstellungen)</option>
+          <option value="AIR">AIR (Leer)</option>
+        </select>
+        <input type="text" id="inpName" value="PvP-Arena betreten" placeholder="Anzeigename des Items" />
+        <input type="text" id="inpCmd" value="warp pvp" placeholder="Befehl beim Klick (ohne /)" />
+        <button class="btn btn-primary" id="btnApply">Auf Slot speichern</button>
+      </section>
+
+      <section class="card">
+        <h2>2. Generierter Java Spigot-Code</h2>
+        <p class="desc">Fertiger <code>InventoryClickEvent</code>-Listener für das Menü:</p>
+        <pre id="javaOutput"></pre>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const slots = {};
+    slots[11] = { mat: 'DIAMOND_SWORD', name: 'PvP-Arena', cmd: 'warp pvp' };
+    slots[13] = { mat: 'ENDER_PEARL', name: 'Zum Spawn', cmd: 'spawn' };
+    slots[15] = { mat: 'GRASS_BLOCK', name: 'Citybuild', cmd: 'warp cb' };
+    let activeSlot = 11;
+
+    function renderChest() {
+      const grid = document.getElementById('chestGrid');
+      grid.innerHTML = '';
+      for (let i = 0; i < 27; i++) {
+        const div = document.createElement('div');
+        const item = slots[i];
+        div.className = 'slot' + (i === activeSlot ? ' selected' : '') + (item ? ' filled' : '');
+        div.textContent = item ? item.mat.split('_')[0] : i;
+        div.onclick = () => {
+          activeSlot = i;
+          document.getElementById('lblSlot').textContent = i;
+          if (slots[i]) {
+            document.getElementById('selMaterial').value = slots[i].mat;
+            document.getElementById('inpName').value = slots[i].name;
+            document.getElementById('inpCmd').value = slots[i].cmd;
+          }
+          renderChest();
+        };
+        grid.appendChild(div);
+      }
+      renderJava();
+    }
+
+    function renderJava() {
+      const entries = Object.entries(slots);
+      const cases = entries.map(([s, it]) => `        case ${s}:\n            player.performCommand("${it.cmd}");\n            player.closeInventory();\n            break;`).join('\n');
+      const setup = entries.map(([s, it]) => `    inv.setItem(${s}, createItem(Material.${it.mat}, "${it.name}"));`).join('\n');
+
+      document.getElementById('javaOutput').textContent = `// Spigot / Paper GUI Plugin Listener
+public void openServerMenu(Player player) {
+    Inventory inv = Bukkit.createInventory(null, 27, "Server-Menü");
+${setup}
+    player.openInventory(inv);
+}
+
+@EventHandler
+public void onInventoryClick(InventoryClickEvent event) {
+    if (!event.getView().getTitle().equals("Server-Menü")) return;
+    event.setCancelled(true);
+    Player player = (Player) event.getWhoClicked();
+
+    switch (event.getRawSlot()) {
+${cases}
+    }
+}`;
+    }
+
+    document.getElementById('btnApply').onclick = () => {
+      const mat = document.getElementById('selMaterial').value;
+      if (mat === 'AIR') {
+        delete slots[activeSlot];
+      } else {
+        slots[activeSlot] = {
+          mat,
+          name: document.getElementById('inpName').value.trim() || 'Item',
+          cmd: document.getElementById('inpCmd').value.trim() || 'help'
+        };
+      }
+      renderChest();
+    };
+
+    renderChest();
+  </script>
+</body>
+</html>
