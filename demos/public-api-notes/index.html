@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Public-API Tester & Notiz-Speicher – Joel Neto Romeira</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #dce3ec;
+      --text: #1e293b;
+      --muted: #64748b;
+      --brand: #1F3864;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Calibri, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--brand);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    h1 { font-size: 1.35rem; color: var(--brand); }
+    .btn {
+      padding: 0.42rem 0.85rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 780px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.15rem;
+    }
+    .card h2 {
+      font-size: 1.05rem;
+      color: var(--brand);
+      margin-bottom: 0.4rem;
+    }
+    .desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 0.85rem;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.45rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      margin-bottom: 0.65rem;
+    }
+    pre {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.8rem;
+      font-family: Consolas, monospace;
+      font-size: 0.78rem;
+      max-height: 290px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    .note-item {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.65rem;
+      margin-bottom: 0.55rem;
+      background: #f8fafc;
+      font-size: 0.86rem;
+    }
+    .note-top {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      color: var(--brand);
+      margin-bottom: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Public-API Tester &amp; Notiz-Speicher</h1>
+        <div style="font-size:0.88rem;color:var(--muted);">Öffentliche JSON-Schnittstellen abfragen und eigene Notizen speichern</div>
+      </div>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="https://kiakademie.github.io/joel-romeira-portfolio/" class="btn">Zurück zur Übersicht</a>
+        <a href="https://github.com/KIAkademie/public-api-notes" target="_blank" rel="noopener" class="btn btn-primary">Quellcode auf GitHub</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Öffentliche REST-API testen (GET)</h2>
+        <p class="desc">Wähle einen Beispiel-Endpunkt oder gib eine öffentliche URL ein:</p>
+
+        <select id="presetSelect">
+          <option value="https://api.github.com/users/KIAkademie/repos">GitHub API – Meine öffentlichen Repositories</option>
+          <option value="https://api.open-meteo.com/v1/forecast?latitude=51.96&longitude=8.22&current_weather=true">Open-Meteo API – Aktuelles Wetter</option>
+          <option value="https://open.er-api.com/v6/latest/EUR">ExchangeRate API – Wechselkurse (EUR)</option>
+        </select>
+
+        <div style="display:flex;gap:0.5rem;">
+          <input type="text" id="apiUrl" value="https://api.github.com/users/KIAkademie/repos" style="margin-bottom:0;" />
+          <button class="btn btn-primary" id="btnFetch">Abfragen</button>
+        </div>
+
+        <div style="font-size:0.8rem;color:var(--muted);margin:0.65rem 0 0.3rem;">JSON-Antwort:</div>
+        <pre id="apiOutput">Klicke auf „Abfragen“, um die JSON-Antwort zu laden.</pre>
+      </section>
+
+      <section class="card">
+        <h2>Eigene Notizen &amp; API-Snippets</h2>
+        <p class="desc">Wird lokal im Browser (<code>localStorage</code>) gespeichert:</p>
+
+        <input type="text" id="noteTitle" placeholder="Titel (z. B. Wetter-API Parameter)" />
+        <textarea id="noteText" rows="3" placeholder="Notiz oder URL eintragen..."></textarea>
+        <button class="btn btn-primary" id="btnSaveNote" style="margin-bottom:1rem;">Notiz speichern</button>
+
+        <div id="notesList"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const presetSelect = document.getElementById('presetSelect');
+    const apiUrl = document.getElementById('apiUrl');
+    const apiOutput = document.getElementById('apiOutput');
+
+    presetSelect.onchange = () => {
+      apiUrl.value = presetSelect.value;
+    };
+
+    async function runFetch() {
+      apiOutput.textContent = 'Lade Daten...';
+      try {
+        const res = await fetch(apiUrl.value.trim());
+        const json = await res.json();
+        apiOutput.textContent = JSON.stringify(json, null, 2);
+      } catch (e) {
+        apiOutput.textContent = 'Fehler beim Abrufen der URL: ' + e.message;
+      }
+    }
+
+    document.getElementById('btnFetch').onclick = runFetch;
+
+    const defaultNotes = [
+      { title: 'GitHub Repos Endpunkt', text: 'GET https://api.github.com/users/KIAkademie/repos gibt alle öffentlichen Repositories als JSON-Array zurück.' },
+      { title: 'Minecraft Server Check', text: 'GET https://api.mcsrvstat.us/3/<server-ip> prüft den Online-Status und die Spielerzahl.' }
+    ];
+
+    function getNotes() {
+      try {
+        const raw = localStorage.getItem('jnr_api_notes');
+        return raw ? JSON.parse(raw) : defaultNotes;
+      } catch {
+        return defaultNotes;
+      }
+    }
+
+    function saveNotes(list) {
+      localStorage.setItem('jnr_api_notes', JSON.stringify(list));
+      renderNotes();
+    }
+
+    function renderNotes() {
+      const list = getNotes();
+      document.getElementById('notesList').innerHTML = list.map((n, i) => `
+        <div class="note-item">
+          <div class="note-top">
+            <span>${n.title}</span>
+            <button onclick="deleteNote(${i})" style="border:none;background:none;color:#64748b;cursor:pointer;font-size:0.8rem;">Löschen</button>
+          </div>
+          <div>${n.text}</div>
+        </div>
+      `).join('');
+    }
+
+    window.deleteNote = function(idx) {
+      const list = getNotes();
+      list.splice(idx, 1);
+      saveNotes(list);
+    };
+
+    document.getElementById('btnSaveNote').onclick = () => {
+      const title = document.getElementById('noteTitle').value.trim();
+      const text = document.getElementById('noteText').value.trim();
+      if (!title || !text) return;
+      const list = getNotes();
+      list.unshift({ title, text });
+      saveNotes(list);
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteText').value = '';
+    };
+
+    renderNotes();
+    runFetch();
+  </script>
+</body>
+</html>
